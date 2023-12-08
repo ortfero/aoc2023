@@ -35,48 +35,49 @@ const List<List<int>> digits = [
   [Char.n, Char.i, Char.n, Char.e]
 ];
 
-bool isDigit(int rune)
-  => rune >= Char.x0 && rune <= Char.x9;
+bool isDigit(int char)
+  => char >= Char.x0 && char <= Char.x9;
 
-int toDigit(int rune)
-  => rune - Char.x0;
+int toDigit(int char)
+  => char - Char.x0;
 
-bool matchDigit(List<int> runes, int i, List<int> digit) {
-  for(var j = 0; j != digit.length; j++)
-    if(runes[i + j] != digit[j]) return false;
+bool matchDigit(List<int> chars, int i, List<int> digit) {
+  for(var j = 0; j != digit.length; j++) {
+    if(chars[i + j] != digit[j]) return false;
+  }
   return true;
 }
 
-int parseDigit(List<int> runes, int i, int n) {
-  switch(runes[i]) {
+int parseDigit(List<int> chars, int i, int n) {
+  switch(chars[i]) {
     case Char.o:
-      return matchDigit(runes, i, digits[1]) ? 1 : 0;
+      return matchDigit(chars, i, digits[1]) ? 1 : 0;
     case Char.t:
-      if(matchDigit(runes, i, digits[2])) return 2;
+      if(matchDigit(chars, i, digits[2])) return 2;
       if(n < 5) return 0;
-      return matchDigit(runes, i, digits[3]) ? 3 : 0;
+      return matchDigit(chars, i, digits[3]) ? 3 : 0;
     case Char.f:
       if(n < 4) return 0;
-      if(matchDigit(runes, i, digits[4])) return 4;
-      return matchDigit(runes, i, digits[5]) ? 5 : 0;
+      if(matchDigit(chars, i, digits[4])) return 4;
+      return matchDigit(chars, i, digits[5]) ? 5 : 0;
     case Char.s:
-      if(matchDigit(runes, i, digits[6])) return 6;
+      if(matchDigit(chars, i, digits[6])) return 6;
       if(n < 5) return 0;
-      return matchDigit(runes, i, digits[7]) ? 7 : 0;
+      return matchDigit(chars, i, digits[7]) ? 7 : 0;
     case Char.e:
       if(n < 5) return  0;
-      return matchDigit(runes, i, digits[8]) ? 8 : 0;
+      return matchDigit(chars, i, digits[8]) ? 8 : 0;
     case Char.n:
       if(n < 4) return 0;
-      return matchDigit(runes, i, digits[9]) ? 9 : 0;
+      return matchDigit(chars, i, digits[9]) ? 9 : 0;
     default:
       return 0;
   }
 } 
 
-int leftmostDigit(List<int> runes, int i, int n) {
+int leftmostDigit(List<int> chars, int i, int n) {
   while(n > 2) {
-    final d = parseDigit(runes, i, n);
+    final d = parseDigit(chars, i, n);
     if(d != 0) return d;
     i++;
     n--;
@@ -84,12 +85,12 @@ int leftmostDigit(List<int> runes, int i, int n) {
   return 0;
 }
 
-int rightmostDigit(List<int> runes, int i, int n) {
+int rightmostDigit(List<int> chars, int i, int n) {
   if( n < 3) return 0;
   var j = i + n - 3;
   var m = 3;
   while(j != i - 1) {
-    final d = parseDigit(runes, j, m);
+    final d = parseDigit(chars, j, m);
     if(d != 0) return d;
     j--;
     m++;
@@ -97,35 +98,33 @@ int rightmostDigit(List<int> runes, int i, int n) {
   return 0;
 }
 
-void main() async {
-  final string = await File('input.txt').readAsString();
-  //final lines = string.split('\n');
-  final lines = ['two1nine'];
+void main() {
+  final lines = File('input.txt').readAsLinesSync();
   var sum = 0;
   for(var line in lines) {
     if (line.isEmpty) continue;
-    final runes = line.runes.toList();
+    final chars = line.codeUnits;
     var firstDigit = 0;
     var i = 0;
-    for (i = 0; i != runes.length; i++) {
-      final r = runes[i];
+    for (i = 0; i != chars.length; i++) {
+      final r = chars[i];
       if (!isDigit(r)) continue; 
       firstDigit = toDigit(r);
       break;
     }
     if (i > 2) {
-      final digit = leftmostDigit(runes, 0, i);
+      final digit = leftmostDigit(chars, 0, i);
       if (digit != 0) firstDigit = digit;
     }
     var lastDigit = 0;
-    for (i = 0; i != runes.length; i++) {
-      final r = runes[runes.length - 1 - i];
+    for (i = 0; i != chars.length; i++) {
+      final r = chars[chars.length - 1 - i];
       if (!isDigit(r)) continue;
       lastDigit = toDigit(r);
       break;
     }
-    if (runes.length - i > 3) {
-      final digit = rightmostDigit(runes, i + 1, runes.length - i - 1);
+    if (chars.length - i > 3) {
+      final digit = rightmostDigit(chars, i + 1, chars.length - i - 1);
       if (digit != 0) lastDigit = digit;
     }
     final n = firstDigit * 10 + lastDigit;
